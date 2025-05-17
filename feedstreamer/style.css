@@ -1,0 +1,421 @@
+/* style.css */
+/* === 1. YLEISET ASETUKSET JA MUUTTUJAT === */
+:root {
+    --primary-bg: #0F0F12;
+    --secondary-bg: #1C1C1F;
+    --card-bg: rgba(40, 42, 48, 0.75); /* Dashboard-osioille ja muille "korteille" */
+    --glass-bg: rgba(28, 28, 32, 0.7);
+    --glass-border: rgba(220, 220, 240, 0.12);
+
+    --accent-color: #A06CD5; /* Hieman pehmeämpi violetti */
+    --accent-color-variant: #824EB5;
+    --success-color: #2ECC71;
+    --error-color: #E74C3C;
+    --link-color: #61AFEF; /* Yleinen linkkiväri */
+
+    --text-primary: #EAEAEA; /* Hieman pehmeämpi valkoinen */
+    --text-secondary: #B0B8C4; /* Vaaleampi harmaa */
+    --text-muted: #7F8C9B; /* Tummempi harmaa huomioille */
+
+    --font-family-current: 'Roboto', sans-serif;
+    --font-size-base: 16px;
+    --font-size-sm: 0.875em;
+    --font-size-md: 1em;
+    --font-size-lg: 1.25em;
+    --font-size-xl: 1.5em;
+    --font-size-xxl: 2em;
+    --font-size-title: 3em; /* Hero-otsikolle */
+
+    --border-radius-sm: 6px;
+    --border-radius-md: 10px;
+    --border-radius-lg: 16px;
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+    --tv-font-scale: 1.1; /* Hieman maltillisempi skaalaus */
+    --transition-fast: 0.15s ease-out;
+    --transition-medium: 0.3s ease-out;
+}
+
+body, html {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    font-family: var(--font-family-current);
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    overflow: hidden;
+    font-size: var(--font-size-base);
+    line-height: 1.5; /* Yleinen riviväli */
+}
+
+/* TV-skaalaus */
+@media (min-width: 1800px) {
+    body, html { font-size: calc(var(--font-size-base) * var(--tv-font-scale)); }
+    :root { --border-radius-md: 14px; --border-radius-lg: 22px; }
+}
+
+/* === 2. APULUOKAT === */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px) saturate(120%); /* Hieman vähemmän saturaatiota */
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius-lg);
+}
+
+/* === 3. YLÄTASON LAYOUT JA KOMPONENTIT === */
+
+/* --- Kelluvat Kontrollit (Asetusnappi & Kello) --- */
+.top-right-controls {
+    position: fixed; top: 20px; right: 20px;
+    z-index: 1010; display: flex; align-items: center; gap: 15px;
+}
+.floating-time {
+    font-size: var(--font-size-md); padding: 8px 12px; color: var(--text-secondary);
+    background-color: rgba(0,0,0,0.35); border-radius: var(--border-radius-sm);
+    text-shadow: 0 0 5px black;
+}
+.floating-action-button { /* Yleinen tyyli FAB-napeille */
+    width: 55px; height: 55px; background-color: var(--accent-color);
+    color: var(--primary-bg); border: none; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: var(--shadow-md); cursor: pointer; z-index: 990;
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+.floating-action-button:hover {
+    background-color: var(--accent-color-variant);
+    transform: scale(1.08);
+}
+.floating-action-button svg { width: 28px; height: 28px; }
+
+.floating-action-button.top-right-fab { /* Erityistyylit yläkulman napeille */
+    background-color: rgba(40,40,45,0.75); color: var(--text-secondary);
+}
+.floating-action-button.top-right-fab:hover {
+    background-color: rgba(55,55,60,0.85); color: var(--text-primary);
+}
+
+
+/* --- Animoitu Tausta --- */
+.animated-background {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; overflow: hidden;
+    background: linear-gradient(-45deg, #232526, #414345, #232526, #0f0c29); /* Uudet värit */
+    background-size: 400% 400%;
+    animation: gradientBG 30s ease infinite; /* Hitaampi animaatio */
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Hero Slider & Slide Oletukset --- */
+.hero-slider {
+    width: 100%; height: 100vh; position: relative;
+    overflow: hidden; box-sizing: border-box; z-index: 1;
+}
+.slide {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0;
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out; /* Sulavampi */
+    transform: translateY(10px) scale(1.01);
+    display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: flex-start;
+    padding: 5vh 6vw; /* Enemmän paddingia sivuilla */
+    box-sizing: border-box; text-align: left; overflow: hidden;
+}
+.slide.active { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Placeholder-slidet (lataus, sää) */
+.slide.placeholder-slide {
+    justify-content: center; align-items: center; text-align: center;
+    background-color: rgba(20, 20, 25, 0.85);
+}
+.news-item-placeholder-title {
+    font-size: var(--font-size-xxl); font-weight: 500;
+    color: var(--text-primary); margin-bottom: 20px;
+}
+.placeholder-slide p { font-size: var(--font-size-lg); color: var(--text-secondary); }
+
+
+/* --- Uutisdian Layout (.news-slide) --- */
+.news-item-info-header {
+    display: flex; align-items: center; gap: 15px;
+    margin-bottom: 20px; width: 100%; max-width: 95%;
+}
+.feed-channel-logo {
+    width: 36px; height: 36px; border-radius: var(--border-radius-sm);
+    object-fit: contain; flex-shrink: 0;
+    background-color: rgba(255,255,255,0.05); /* Tausta, jos logo läpinäkyvä */
+}
+.feed-channel-title {
+    font-size: var(--font-size-lg); font-weight: 500; color: var(--text-secondary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.feed-channel-time {
+    font-size: var(--font-size-sm); color: var(--text-muted);
+    margin-left: auto; white-space: nowrap;
+}
+
+.news-item-tags {
+    margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 10px;
+    width: 100%; max-width: 95%;
+}
+.category-tag-item {
+    background-color: var(--accent-color-variant); color: var(--text-primary);
+    padding: 6px 14px; border-radius: 18px; /* Pyöreämpi */
+    font-size: var(--font-size-sm); font-weight: 500;
+}
+
+.news-item-main-title {
+    font-size: var(--font-size-title); font-weight: 700; color: #fff;
+    margin-bottom: 30px; line-height: 1.2;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    width: 100%; max-width: 95%;
+}
+
+.news-item-content-body {
+    display: flex; flex-direction: row; align-items: flex-start;
+    gap: 30px; width: 100%; max-width: 95%; margin-bottom: 30px;
+}
+.news-item-main-image {
+    flex: 0 0 320px; max-width: 33%; height: auto; max-height: 380px;
+    object-fit: cover; border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+}
+.news-item-main-text {
+    flex-grow: 1; font-size: var(--font-size-lg); line-height: 1.65;
+    color: var(--text-primary); max-height: 42vh; overflow-y: auto;
+    padding-right: 15px; /* Tilaa scrollbarille */
+}
+.news-item-main-text p:first-child,
+.news-item-main-text div > *:first-child { margin-top: 0; }
+.news-item-main-text p:last-child,
+.news-item-main-text div > *:last-child { margin-bottom: 0; }
+
+.news-item-meta-footer {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+    font-size: var(--font-size-sm); color: var(--text-secondary);
+    width: 100%; max-width: 95%; display: flex; flex-wrap: wrap;
+    gap: 10px 25px; align-items: center;
+}
+.source-name-footer { font-weight: 500; }
+.source-link-footer {
+    color: var(--link-color); text-decoration: none; font-weight: 500;
+    transition: color var(--transition-fast);
+}
+.source-link-footer:hover { color: var(--accent-color); text-decoration: underline; }
+.copyright-text-footer { font-style: italic; font-size: 0.9em; margin-left: auto; color: var(--text-muted); }
+
+/* Mobiiliresponsiivisuus uutisdialle */
+@media (max-width: 1024px) {
+    .slide { padding: 6vw; } /* Hieman enemmän paddingia */
+    .news-item-main-title { font-size: 2.2em; } /* Suhteessa perusfonttiin */
+    .news-item-content-body { flex-direction: column; align-items: center; }
+    .news-item-main-image { flex-basis: auto; width: 90%; max-width: 450px; margin-bottom: 25px; max-height: 300px; }
+    .news-item-main-text { font-size: var(--font-size-md); text-align: left; max-height: 38vh; }
+    .copyright-text-footer { width: 100%; text-align: left; margin-top: 10px; margin-left: 0; }
+}
+/* TV-skaalaukset uutisdialle */
+@media (min-width: 1800px) {
+    .feed-channel-logo { width: 42px; height: 42px; }
+    .feed-channel-title { font-size: calc(var(--font-size-lg) * var(--tv-font-scale)); }
+    .category-tag-item { padding: 8px 18px; font-size: calc(var(--font-size-sm) * var(--tv-font-scale)); }
+    .news-item-main-title { font-size: calc(var(--font-size-title) * 0.9 * var(--tv-font-scale)); } /* Hieman suhteellisempi */
+    .news-item-main-image { flex-basis: 420px; max-height: 450px; }
+    .news-item-main-text { font-size: calc(var(--font-size-lg) * var(--tv-font-scale)); max-height: 48vh; }
+    .news-item-meta-footer { font-size: calc(var(--font-size-sm) * var(--tv-font-scale)); }
+}
+
+/* --- Podcast-soitin --- */
+.podcast-player-container {
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    padding: 0 25px; box-sizing: border-box; display: flex;
+    justify-content: space-between; align-items: center;
+    z-index: 999; color: var(--text-primary); height: 75px; /* Hieman korkeampi */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+.podcast-player-container.hidden { transform: translateY(100%); }
+.podcast-info { font-size: 1.05em; }
+.player-control-button { font-size: 1.6em; padding: 10px; }
+.player-control-button.main-player-button { font-size: 2.4em; }
+.podcast-progress { height: 10px; } /* Paksumpi progress bar */
+.podcast-progress::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -4px; }
+.podcast-progress::-moz-range-thumb { width: 18px; height: 18px; }
+.podcast-time-display { font-size: 0.95em; }
+input[type="range"]#podcast-volume-slider { height: 8px; }
+input[type="range"]#podcast-volume-slider::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -4px; }
+input[type="range"]#podcast-volume-slider::-moz-range-thumb { width: 16px; height: 16px; }
+
+
+.podcast-time-display { font-size: 0.9em; color: var(--text-secondary); min-width: 40px; text-align: center; }
+.podcast-time-separator { color: #777; margin: 0 5px; }
+.volume-control { display: flex; align-items: center; }
+.volume-icon-btn { font-size: 1.3em; margin-right: 5px; }
+input[type="range"]#podcast-volume-slider {
+    width: 100px; cursor: pointer; accent-color: var(--accent-color); /* Fallback */
+    height: 6px; -webkit-appearance: none; appearance: none;
+    background: rgba(255,255,255,0.1); border-radius: 3px;
+}
+input[type="range"]#podcast-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
+    background: var(--text-primary); border-radius: 50%; cursor: pointer; margin-top: -4px;
+}
+input[type="range"]#podcast-volume-slider::-moz-range-thumb {
+    width: 14px; height: 14px; background: var(--text-primary);
+    border-radius: 50%; cursor: pointer; border: none;
+}
+
+
+/* --- Modaalinen ikkuna --- */
+.modal {
+    display: none; position: fixed; z-index: 1050;
+    left: 0; top: 0; width: 100%; height: 100%;
+    overflow-y: auto; /* Mahdollistaa scrollauksen vain modaalille */
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 5vh 5vw; /* Padding suhteessa näkymään */
+    box-sizing: border-box;
+    animation: fadeInModal 0.3s ease-out;
+}
+.modal-content {
+    margin: auto; padding: 35px 40px; /* Enemmän paddingia */
+    width: 100%; max-width: 800px; /* Suurempi max-leveys */
+    position: relative; color: var(--text-primary);
+    animation: slideInModal 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-radius: var(--border-radius-lg);
+}
+.modal-close-btn {
+    position: absolute; top: 15px; right: 20px; /* Selkeästi kulmassa */
+    color: var(--text-secondary); font-size: 2.2em; font-weight: bold;
+    transition: color 0.2s, transform 0.2s; line-height: 1; cursor: pointer;
+}
+.modal-close-btn:hover { color: var(--text-primary); transform: rotate(90deg); }
+.modal-content h2 { margin-top: 0; margin-bottom: 20px; color: #fff; font-size: 1.8em; }
+.modal-content img {
+    max-width: 100%; height: auto; border-radius: var(--border-radius-md);
+    margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.modal-content #modal-description {
+    line-height: 1.7; margin-bottom: 25px;
+    max-height: calc(70vh - 200px); /* Rajoita korkeutta suhteessa näkymään */
+    overflow-y: auto; font-size: 1.1em;
+    padding-right: 10px; /* Tilaa scrollbarille */
+}
+.modal-footer { text-align: right; margin-top: 20px; }
+.modal-action-button {
+    display: inline-block; padding: 10px 20px;
+    background-color: var(--accent-color); color: var(--primary-bg);
+    text-decoration: none; border-radius: var(--border-radius-md);
+    transition: background-color 0.2s; font-weight: 500;
+}
+.modal-action-button:hover { background-color: var(--accent-color-variant); }
+@keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInModal { from { transform: scale(0.95) translateY(-20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+
+/* --- Asetukset Dashboard --- */
+.settings-dashboard {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1020; display: none; flex-direction: column; padding: 0;
+    opacity: 0; transform: scale(1.01);
+    transition: opacity var(--transition-medium), transform var(--transition-medium);
+}
+.settings-dashboard.open { display: flex; opacity: 1; transform: scale(1); }
+.dashboard-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 25px 35px; /* Enemmän paddingia */
+    border-bottom: 1px solid var(--glass-border); flex-shrink: 0;
+}
+.dashboard-header .logo-svg { width: 40px; height: 40px; margin-right: 18px; }
+.dashboard-header h1 { font-size: var(--font-size-xl); margin: 0; color: var(--text-primary); font-weight: 500; }
+.dashboard-header .header-button { font-size: 1.6em; } /* Sulje-nappi */
+
+.dashboard-content {
+    flex-grow: 1; overflow-y: auto; padding: 35px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); /* Leveämmät sarakkeet */
+    gap: 35px;
+}
+.dashboard-section {
+    padding: 30px; border-radius: var(--border-radius-md);
+    background-color: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+}
+.dashboard-section h2 {
+    margin-top: 0; margin-bottom: 30px; font-size: var(--font-size-lg);
+    color: var(--text-primary); border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 15px; font-weight: 500;
+}
+.setting-item { margin-bottom: 25px; }
+.setting-item label { display: block; margin-bottom: 10px; font-size: var(--font-size-md); color: var(--text-secondary); }
+.setting-item input[type="number"],
+.setting-item input[type="text"],
+.setting-item select,
+.input-group input[type="url"] {
+    width: 100%; padding: 14px 18px; /* Isompi padding inputeille */
+    background-color: var(--primary-bg); /* Selkeämpi kontrasti */
+    border: 1px solid var(--glass-border); color: var(--text-primary);
+    border-radius: var(--border-radius-sm); box-sizing: border-box;
+    font-size: var(--font-size-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.setting-item input:focus, .setting-item select:focus {
+    outline: none; border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color), 0.3); /* Korvaa RGB-arvot accent-colorille */
+}
+.setting-item input[type="number"] { width: 130px; }
+
+.input-group { display: flex; margin-bottom: 20px; }
+.input-group input[type="url"] { flex-grow: 1; margin-right: -1px; border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm); }
+
+.dashboard-action-button { /* Yleinen tyyli dashboardin napeille */
+    padding: 14px 22px; background-color: var(--accent-color);
+    color: #fff; /* Parempi kontrasti violetille */
+    border: none; border-radius: var(--border-radius-md); cursor: pointer;
+    font-size: var(--font-size-md); font-weight: 500;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    display: inline-flex; align-items: center; justify-content: center; text-align: center;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+.dashboard-action-button:hover { background-color: var(--accent-color-variant); transform: translateY(-2px); }
+.dashboard-action-button:active { transform: translateY(0px); }
+.dashboard-action-button .button-icon { margin-right: 10px; font-size: 1.2em; vertical-align: middle; }
+
+#rss-feeds-list li, #podcast-episodes-list li {
+    background-color: var(--secondary-bg); padding: 14px 18px;
+    margin-bottom: 12px; border-radius: var(--border-radius-sm);
+    display: flex; justify-content: space-between; align-items: center;
+    word-break: break-all; font-size: 0.95em; transition: background-color 0.2s;
+    border: 1px solid var(--glass-border);
+}
+#rss-feeds-list li:hover, #podcast-episodes-list li:hover { background-color: rgba(45, 45, 50, 0.9); }
+#rss-feeds-list button { /* Poista-nappi */
+    background-color: var(--error-color); color: var(--primary-bg); border: none;
+    padding: 6px 10px; border-radius: var(--border-radius-sm); cursor: pointer;
+    margin-left: 10px; font-size: 0.9em;
+}
+#rss-feeds-list button:hover { background-color: #b00020; /* Tummempi punainen */ }
+#podcast-episodes-list li { cursor: pointer; }
+#podcast-episodes-list li.playing { background-color: var(--success-color); color: var(--primary-bg); font-weight: bold; }
+#podcast-episodes-list li.playing:hover { background-color: #018786; /* Tummempi turkoosi */ }
+.episodes-list-container { max-height: 320px; overflow-y: auto; padding-right: 5px; /* Tilaa scrollbarille */ }
+.show-more-episodes-btn {
+    text-align: center; color: var(--accent-color) !important; font-weight: 500;
+    background-color: transparent !important; border: none !important;
+}
+.show-more-episodes-btn:hover { color: var(--accent-color-variant) !important; }
+
+
+.dashboard-footer {
+    padding: 25px 35px; text-align: center;
+    font-size: var(--font-size-sm); color: var(--text-muted);
+    border-top: 1px solid var(--glass-border); flex-shrink: 0;
+    /* Glass effect tulee dashboard-pääelementistä */
+}
+.dashboard-footer p { margin: 5px 0; }
+.dashboard-footer #app-info-dashboard { margin-bottom: 10px; font-size: 0.95em; }
+.app-name-footer { font-weight: 500; color: var(--text-primary); }
