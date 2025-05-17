@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Digital Commons Lab</title>
+    <meta name="Keywords" content="Digital Commons Lab, DAO, Lohkoketju, Osuuskunta, Digitaalinen Hacklab, Yhteisö">
+    <meta name="description" content="Digital Commons Lab - Digitaalinen Hacklab äly-yhteisölliselle yhdessä tekemiselle, olemiselle ja oppimiselle.">
+    <meta name="author" content="Digital Commons Lab" />
+    <link rel="shortcut icon" href="img/favicon.ico"> <!-- Olettaen, että favicon on img-kansiossa -->
+    
+    <!-- Mukautetut fontit (säilytetään esimerkistä) -->
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:300,400,700|Ropa+Sans:400,400i' rel='stylesheet' type='text/css'>
+
+    <!-- Omat CSS-tyylit -->
+    <style>
+        /* Perus reset ja normalisointi */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Pehmeä vieritys ankkureihin */
+            font-size: 16px; /* Perus fonttikoko */
+        }
+
+        body {
+            font-family: 'Titillium Web', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9; /* Vaalea taustaväri */
+            display: flex; /* Mahdollistaa sivupalkin ja sisällön vierekkäisyyden */
+            min-height: 100vh;
+        }
+
+        /* Säiliö, joka pitää sisällään sivupalkin ja pääsisällön */
+        #wrapper {
+            display: flex;
+            width: 100%;
+            transition: margin-left 0.3s ease-in-out; /* Sivupalkin avaus/sulkuefekti */
+        }
+
+        /* Sivupalkki */
+        #sidebar-wrapper {
+            width: 260px;
+            min-width: 260px; /* Estää kutistumisen liikaa */
+            background-color: #2c3e50; /* Tummempi sävy sivupalkille */
+            color: #ecf0f1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease-in-out;
+            height: 100vh; /* Koko näytön korkuinen */
+            position: fixed; /* Kiinnitetty sivupalkki */
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 20px;
+            flex-grow: 1; /* Vie loput tilasta ylhäällä */
+        }
+
+        .sidebar-nav .sidebar-brand a {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 20px;
+        }
+         .sidebar-nav .sidebar-brand a:hover {
+            color: #3498db;
+         }
+
+        .sidebar-nav li a {
+            display: block;
+            padding: 10px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a:focus {
+            background-color: #34495e;
+            color: #fff;
+        }
+        
+        .sidebar-copyright {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+            text-align: left; /* Vasen tasaus */
+            padding-top: 20px;
+            border-top: 1px solid #34495e;
+        }
+        .sidebar-copyright a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .sidebar-copyright a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* Pääsisältöalue */
+        #page-content-wrapper {
+            flex-grow: 1; /* Ottaa loput tilasta */
+            padding: 25px;
+            margin-left: 260px; /* Sivupalkin leveys */
+            transition: margin-left 0.3s ease-in-out;
+            overflow-y: auto; /* Salli pystysuuntainen vieritys tarvittaessa */
+        }
+
+        /* Kun sivupalkki on piilotettu */
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: -260px;
+        }
+
+        #wrapper.toggled #page-content-wrapper {
+            margin-left: 0;
+        }
+        
+        /* Menu-nappi (Hamburger) */
+        #menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px; /* Aluksi piilossa sivupalkin takana, kun se on näkyvissä */
+            z-index: 1001; /* Päällimmäisenä */
+            background-color: #2c3e50; 
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: left 0.3s ease-in-out, background-color 0.2s ease;
+        }
+        #menu-toggle:hover {
+            background-color: #34495e;
+        }
+
+        #wrapper.toggled #menu-toggle {
+            /* Kun sivupalkki on piilossa, nappi näkyy vasemmassa yläkulmassa */
+        }
+        
+        /* Hamburger-ikonin viivat */
+        .hamburger-icon span {
+            display: block;
+            width: 22px;
+            height: 3px;
+            background-color: #fff;
+            margin: 4px 0;
+            border-radius: 1px;
+        }
+
+        /* Sisältöelementtien perusmuotoilua */
+        h1, h2 {
+            font-family: 'Ropa Sans', sans-serif;
+            color: #2c3e50; /* Tumma pääväri otsikoille */
+            margin-bottom: 0.8em;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+        h2.section-title {
+            font-size: 2rem;
+            margin-top: 40px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 0.4em;
+        }
+
+        p {
+            margin-bottom: 1.2em;
+            font-size: 1.05rem;
+        }
+        p.lead {
+            font-size: 1.25rem;
+            color: #555;
+            font-weight: 300;
+        }
+
+        a {
+            color: #3498db; /* Linkkiväri */
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .concept-highlight {
+            background-color: #e9ecef; /* Vaalea korostusväri */
+            padding: 20px;
+            border-left: 5px solid #3498db; /* Korostusreuna */
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .concept-highlight p:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #fff;
+            background-color: #3498db; /* Pääpainikkeen väri */
+            border: none;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #2980b9; /* Tummempi sävy hoverille */
+            text-decoration: none;
+        }
+        .btn-lg { /* Isompi nappi */
+            padding: 15px 30px;
+            font-size: 1.25rem;
+        }
+        
+        /* Responsiveness - Pienemmät näytöt */
+        @media (max-width: 768px) {
+            #sidebar-wrapper {
+                margin-left: -260px; /* Sivupalkki piilossa oletuksena */
+            }
+            #page-content-wrapper {
+                margin-left: 0; /* Koko leveys sisällölle */
+            }
+            #wrapper.toggled #sidebar-wrapper {
+                margin-left: 0; /* Sivupalkki näkyviin */
+            }
+            #menu-toggle {
+                /* Nappi näkyvissä aina vasemmassa yläkulmassa pienillä näytöillä */
+            }
+
+            h1 { font-size: 2rem; }
+            h2.section-title { font-size: 1.7rem; }
+            p.lead { font-size: 1.1rem; }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Sivupalkki -->
+        <aside id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand"><a href="#etusivu">Digital Commons Lab</a></li>
+                <li><a href="#etusivu">Etusivu</a></li>
+                <li><a href="#konsepti">Konsepti</a></li>
+                <li><a href="#teknologia">Teknologia</a></li>
+                <li><a href="#yhteiso">Yhteisö & Osuuskunta</a></li>
+                <li><a href="#dao">DAO</a></li>
+                <li><a href="#lab">Lab & Oppiminen</a></li>
+                <li><a href="#tulevaisuus">Tulevaisuus</a></li>
+                <li><a href="#yhteys">Ota Yhteyttä</a></li>
+            </ul>
+            <div class="sidebar-copyright">
+                Copyright 2025 © <a href="http://www.digitalcommonslab.pw" target="_blank">Digital Commons Lab.</a>
+            </div>
+        </aside>
+
+        <!-- Menu-nappi (sijoitetaan wrappin ulkopuolelle, jotta se pysyy paikallaan) -->
+        <button id="menu-toggle" title="Valikko">
+            <span class="hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        </button>
+
+        <!-- Pääsisältöalue -->
+        <main id="page-content-wrapper">
+            <section id="etusivu" class="page-section">
+                <h1>Digital Commons Lab</h1>
+                <p class="lead">"Digital Co-operative Autonomous Social Organization"</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p>Tervetuloa Digital Commons Labiin – innovatiiviseen hankkeeseen, joka pyrkii luomaan "Digitaalisen Hacklabin" äly-yhteisöllistä yhdessä tekemistä, olemista ja oppimista varten. Rakennamme alustaa, jossa teknologia, yhteisöllisyys ja autonomia kohtaavat.</p>
+            </section>
+
+            <section id="konsepti" class="page-section">
+                <h2 class="section-title">Konseptin Ydin</h2>
+                <div class="concept-highlight">
+                    <p><strong>Digital Commons Labin taustalla on konsepti, jonka voit kuvata Digital Co-operative Autonomous Social Organizationiksi.</strong> Tämä nimi kuvaa projektin pyrkimystä yhdistää digitaalinen ulottuvuus perinteisen osuuskunnan ("Co-operative") periaatteisiin, hajautetun autonomisen organisaation (DAO) toimintatapoihin ("Autonomous Organization") ja yhteisölliseen, sosiaaliseen ("Social") päämäärään.</p>
+                    <p>Konseptin ytimessä on <strong>Digitaalinen Hacklab</strong>, joka toimisi paikkana äly-yhteisölliselle yhdessä tekemiselle, olemiselle ja oppimiselle.</p>
+                </div>
+            </section>
+
+            <section id="teknologia" class="page-section">
+                <h2 class="section-title">1. Digitaalisuus ja Teknologia</h2>
+                <p>Projekti rakentuu digitaalisen teknologian, erityisesti <strong>lohkoketjun ja älysopimusten</strong>, hyödyntämiselle. Älysopimukset ovat lohkoketjuun ohjelmoituja automaattisia toimintoja, jotka voivat vähentää välikäsien tarvetta. Ne tekevät sopimusten solmimisesta luotettavampaa ja keveämpää.</p>
+                <p>Lohkoketju tarjoaa hajautetun, läpinäkyvän ja muuttumattoman tietokannan, mikä lisää luottamusta. Tämä muodostaa perustan "Digital" ja "Äly" ulottuvuuksille.</p>
+            </section>
+
+            <section id="yhteiso" class="page-section">
+                <h2 class="section-title">2. Osuuskunta (Co-operative) ja Yhteisöllisyys (Social)</h2>
+                <p>Osuuskunta on itsenäinen henkilöyhteisö, johon jäsenet liittyvät vapaaehtoisesti toteuttaakseen yhteisesti omistamansa yrityksen avulla taloudellisia, sosiaalisia ja kulttuurisia tavoitteitaan. Yhteisöllisyys on vahvasti läsnä tässä mallissa.</p>
+                <p>Vaikka projekti on alkuvaiheessa harrastusmielinen demo, se simuloi osuuskuntaperiaatteita. Tavoitteena on hyödyntää alustaosuuskuntien ja digitaalisen yhteistyön malleja. DAO:t, vaikka teknologisia organisaatioita, mahdollistavat laajempaa yhteisöllisyyttä jäsenten edistäessä niiden toimintaa ja voivat auttaa ratkaisemaan sosiaalisia kysymyksiä.</p>
+            </section>
+
+            <section id="dao" class="page-section">
+                <h2 class="section-title">3. Hajautettu Autonominen Organisaatio (DAO)</h2>
+                <p>DAO on digitaalinen, hajautettu päätöksentekoelin, jonka toiminta perustuu älysopimuksiin lohkoketjussa. Päätöksentekoon osallistuvat tyypillisesti tokenhaltijat. DAO:lla ei ole keskitettyä hallintoa.</p>
+                <p>DAO:t mahdollistavat organisaation ja toiminnan yhtenäisen hallinnan, samalla kun kaikki henkilöt sisällytetään päätöksentekoon monimuotoisesti. Älysopimusten käyttö päätöksenteossa voi pienentää yksilöllisen opportunistisen käyttäytymisen riskiä. Tämä "Autonomous Organization" elementti kuvaa DAO-teknologian ja hallintotavan hyödyntämistä projektissamme.</p>
+            </section>
+
+            <section id="lab" class="page-section">
+                <h2 class="section-title">4. Tutkimus ja Kehittäminen (Lab / Tekeminen ja Oppiminen)</h2>
+                <p>"Lab" nimessä ja "yhdessä tekeminen sekä oppiminen" kuvaavat projektin kokeellista ja kehittämiseen tähtäävää luonnetta. Korostamme lohkoketjuteknologian potentiaalia uusien sovellusten kehittämiseen, DAppien (hajautettujen sovellusten) kehitystä, älysopimusten suunnittelua ja toteutusta.</p>
+                <p>Hacklab-idea sopii hyvin tähän kehittämisen ja oppimisen kontekstiin, jossa tutkitaan teknologian mahdollisuuksia ja rakennetaan uusia ratkaisuja yhdessä.</p>
+            </section>
+
+            <section id="tulevaisuus" class="page-section">
+                <h2 class="section-title">5. Tulevaisuuden Visio (Fyysinen Paikka)</h2>
+                <p>Vaikka Digital Commons Lab on ensisijaisesti digitaalinen hanke, pitkän tähtäimen tavoitteenamme on mahdollistaa lopulta myös <strong>fyysinen paikka</strong> harrastustoiminnan edistämiseksi. Tämä tila toimisi konkreettisena kohtaamispaikkana yhteisölle, tukien digitaalista toimintaa ja mahdollistaen uudenlaisia yhteistyön muotoja.</p>
+                <p>Yhteenvetona Digital Commons Lab on siis kokeilu ja kehityshanke, joka pyrkii luomaan digitaalisen ympäristön hyödyntäen lohkoketjun, älysopimusten ja DAO:n teknologiaa ja hallintatapaa, simuloiden samalla osuuskunnan yhteisöllisiä ja sosiaalisia arvoja. Sen tavoitteena on toimia Digitaalisena Hacklabina, jossa yhteisö voi digitaalisesti yhdessä tehdä, olla ja oppia, mahdollisesti tavoitteena myös fyysisen tilan luominen tulevaisuudessa.</p>
+            </section>
+
+            <section id="yhteys" class="page-section">
+                <h2 class="section-title">Ota Yhteyttä / Liity Keskusteluun</h2>
+                <p>Oletko kiinnostunut Digital Commons Labista? Haluatko kuulla lisää tai osallistua kehitykseen? </p>
+                <p>Voit ottaa yhteyttä sähköpostitse: <a href="mailto:info@digitalcommonslab.pw">info@digitalcommonslab.pw</a> (esimerkki) tai seurata projektin etenemistä [Lisää linkki GitHubiin, Discordiin, foorumiin tms. tänne].</p>
+                <a href="#" class="btn btn-lg">Liity Yhteisöön (Placeholder)</a>
+            </section>
+        </main>
+    </div>
+
+    <!-- Vanilla JavaScript toiminnoille -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const wrapper = document.getElementById('wrapper');
+            const sidebarLinks = document.querySelectorAll('#sidebar-wrapper .sidebar-nav a[href^="#"]');
+
+            // Sivupalkin näyttö/piilotus
+            if (menuToggle && wrapper) {
+                // Asetetaan wrapperille .toggled-luokka oletuksena pienillä näytöillä
+                if (window.innerWidth <= 768) {
+                    wrapper.classList.add('toggled');
+                }
+
+                menuToggle.addEventListener('click', function () {
+                    wrapper.classList.toggle('toggled');
+                });
+            }
+            
+            // Pehmeä vieritys ja sivupalkin sulkeminen linkin klikkauksen jälkeen pienillä näytöillä
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        event.preventDefault(); // Estä oletustoiminto vain jos kohde löytyy
+
+                        // Laske kohde-elementin sijainti suhteessa dokumentin yläreunaan
+                        // Huomioi kiinteä header, jos sellainen olisi (tässä ei ole)
+                        const offsetTop = targetElement.offsetTop; 
+
+                        window.scrollTo({
+                            top: offsetTop - 20, // Pieni marginaali yläreunaan
+                            behavior: 'smooth'
+                        });
+
+                        // Sulje sivupalkki pienillä näytöillä klikkauksen jälkeen
+                        if (window.innerWidth <= 768 && wrapper && !wrapper.classList.contains('toggled')) {
+                           // Ei tarvita erillistä togglausta, jos se on jo auki ja halutaan pitää auki
+                           // Mutta jos se on kiinni ja avataan klikkauksella, se on ok.
+                           // Tässä oletus, että jos linkkiä klikataan, käyttäjä on nähnyt sen, eikä sitä tarvitse sulkea.
+                           // Jos haluat sulkea, lisää: wrapper.classList.add('toggled');
+                        }
+                         // Jos sivupalkki on auki (ei toggled-luokkaa) ja näyttö on pieni, sulje se
+                        if (window.innerWidth <= 768 && wrapper && wrapper.classList.contains('toggled') === false) {
+                            //wrapper.classList.add('toggled'); // Poistettu, jotta palkki pysyy auki jos se oli jo.
+                        }
+                    }
+                });
+            });
+
+            // Varmistetaan, että wrapperin tila päivittyy ikkunan koon muuttuessa
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    if (wrapper && wrapper.classList.contains('toggled')) {
+                        wrapper.classList.remove('toggled'); // Näytä sivupalkki isoilla näytöillä
+                    }
+                } else {
+                    if (wrapper && !wrapper.classList.contains('toggled')) {
+                       // wrapper.classList.add('toggled'); // Piilota sivupalkki oletuksena pienillä näytöillä, jos se ei ole jo
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
